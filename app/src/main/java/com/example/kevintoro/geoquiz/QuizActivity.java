@@ -1,5 +1,6 @@
 package com.example.kevintoro.geoquiz;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +19,9 @@ public class QuizActivity extends AppCompatActivity {
     private Button mFalseButton;
     private Button mNextButton;
     private Button mPrevButton;
+    private Button mCheatButton;
     private TextView mQuestionTextView;
+
 
     private Question[] mQuestionBank = new Question[] {
             new Question(R.string.question_australia, true),
@@ -34,7 +37,7 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG,"onCreate(Bundle) vcalled");
+        Log.d(TAG,"onCreate(Bundle) called");
         setContentView(R.layout.activity_quiz);
 
         if(savedInstanceState != null){
@@ -64,6 +67,7 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View v){
                 mCurrentIndex = (mCurrentIndex -1+ mQuestionBank.length) % mQuestionBank.length;
                 updateQuestion();
+
             }
         });
         mNextButton = findViewById(R.id.next_button);
@@ -72,6 +76,18 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
                 updateQuestion();
+                if(mCurrentIndex == mQuestionBank.length -1){
+                    mNextButton.setEnabled(false);
+                }
+            }
+        });
+        mCheatButton = findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                //start cheat activity
+                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -112,17 +128,23 @@ public class QuizActivity extends AppCompatActivity {
     private void updateQuestion(){
         int question = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
+
+
     }
 
     private void checkAnswer(boolean userPressedTrue){
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
-
+        int answer = mQuestionBank[mCurrentIndex].getAnswered();
         int messageResId = 0;
 
-        if(userPressedTrue == answerIsTrue) {
+        if(userPressedTrue == answerIsTrue & answer == 0) {
             messageResId = R.string.correct_toast;
+//            mFalseButton.setEnabled(false);
+//            mTrueButton.setEnabled(false);
         } else {
             messageResId = R.string.incorrect_toast;
+//            mFalseButton.setEnabled(false);
+//            mTrueButton.setEnabled(false);
         }
 
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT)
